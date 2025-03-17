@@ -3,33 +3,14 @@ import { useParams } from 'react-router-dom';
 import FeaturedArticle from '../components/ui/FeaturedArticle';
 import ArticleCard from '../components/ui/ArticleCard';
 import SectionTitle from '../components/ui/SectionTitle';
-
-// Empty article state interface
-interface Article {
-  title: string;
-  subtitle: string;
-  image: string;
-  category: string;
-  slug: string;
-}
+import { useGetArticles } from '../hooks/useArticles';
 
 const Index = () => {
   const { category } = useParams<{ category: string }>();
-  const [articles, setArticles] = useState<Article[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { data: articles = [], isLoading, isError } = useGetArticles(category);
   
   useEffect(() => {
     window.scrollTo(0, 0);
-    
-    // Simulate loading (this would be replaced with actual API calls)
-    setIsLoading(true);
-    
-    // This timeout simulates an API call
-    const timer = setTimeout(() => {
-      // In a real app, you would fetch articles from an API
-      setArticles([]);
-      setIsLoading(false);
-    }, 500);
     
     // Add intersection observer for animations
     const animatedElements = document.querySelectorAll('.animate-on-scroll');
@@ -51,7 +32,6 @@ const Index = () => {
     animatedElements.forEach((el) => observer.observe(el));
     
     return () => {
-      clearTimeout(timer);
       animatedElements.forEach((el) => observer.unobserve(el));
     };
   }, [category]);
@@ -62,10 +42,16 @@ const Index = () => {
 
   return (
     <>
-      {/* Main content area starts directly without Navbar (now in MainLayout) */}
       {isLoading ? (
         <div className="grid-container flex justify-center items-center py-16">
           <div className="w-12 h-12 border-4 border-t-blog-accent rounded-full animate-spin"></div>
+        </div>
+      ) : isError ? (
+        <div className="grid-container text-center py-16">
+          <h2 className="font-serif font-bold text-3xl mb-4">Error Loading Articles</h2>
+          <p className="text-gray-600 max-w-md mx-auto mb-8">
+            Unable to load articles. Please try again later.
+          </p>
         </div>
       ) : (
         <>
@@ -79,16 +65,30 @@ const Index = () => {
             </div>
           ) : (
             <>
-              {/* Featured section would go here when articles exist */}
+              {/* Featured section for the first article */}
+              {articles.length > 0 && (
+                <section className="grid-container mb-16">
+                  <FeaturedArticle
+                    title={articles[0].title}
+                    subtitle={articles[0].subtitle || ''}
+                    image={articles[0].featuredImage || 'https://placehold.co/1200x600/e2e8f0/64748b?text=No+Image'}
+                    category={articles[0].category}
+                    slug={articles[0].slug}
+                    large={true}
+                  />
+                </section>
+              )}
+              
+              {/* Regular articles */}
               <section className="grid-container mb-16">
                 <SectionTitle title={sectionTitle} withLine={true} />
                 <div className="space-y-8">
-                  {articles.map((article, index) => (
+                  {articles.slice(1).map((article) => (
                     <ArticleCard
-                      key={index}
+                      key={article.id}
                       title={article.title}
                       subtitle={article.subtitle}
-                      image={article.image}
+                      image={article.featuredImage || 'https://placehold.co/800x450/e2e8f0/64748b?text=No+Image'}
                       category={article.category}
                       slug={article.slug}
                     />
@@ -124,7 +124,6 @@ const Index = () => {
           </section>
         </>
       )}
-      {/* No footer here as it's now in MainLayout */}
     </>
   );
 };

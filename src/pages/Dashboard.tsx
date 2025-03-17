@@ -1,9 +1,9 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
-import { PlusCircle, LogOut } from "lucide-react";
+import { PlusCircle, LogOut, Edit, Trash2 } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -13,29 +13,32 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useToast } from "@/components/ui/use-toast";
+import { useGetUserArticles } from "@/hooks/useArticles";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { supabase } from "@/lib/supabase";
 
 const Dashboard = () => {
-  const [articles, setArticles] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { data: articles = [], isLoading, isError } = useGetUserArticles();
+  const [deleteArticleId, setDeleteArticleId] = useState<number | null>(null);
   const { logout } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   
-  useEffect(() => {
-    // Simulate loading articles from storage
-    const timer = setTimeout(() => {
-      // In a real implementation, we'd fetch articles from localStorage or an API
-      // For now, initialize with an empty array instead of mock data
-      setArticles([]);
-      setIsLoading(false);
-    }, 500);
-    
-    return () => clearTimeout(timer);
-  }, []);
-
   const handleNewArticle = () => {
-    // Navigate to article editor with new article flag
     navigate("/editor/new");
+  };
+
+  const handleEditArticle = (id: number) => {
+    navigate(`/editor/${id}`);
   };
 
   const handleLogout = () => {
@@ -44,6 +47,38 @@ const Dashboard = () => {
       title: "Logged out",
       description: "You have been logged out successfully.",
     });
+  };
+  
+  const handleDeleteClick = (id: number) => {
+    setDeleteArticleId(id);
+  };
+  
+  const confirmDelete = async () => {
+    if (!deleteArticleId) return;
+    
+    try {
+      const { error } = await supabase
+        .from("articles")
+        .delete()
+        .eq("id", deleteArticleId);
+        
+      if (error) throw error;
+      
+      toast({
+        title: "Article deleted",
+        description: "The article has been deleted successfully.",
+      });
+      
+      // Refresh the article list (this will be handled by React Query)
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete the article. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setDeleteArticleId(null);
+    }
   };
 
   return (
@@ -80,6 +115,12 @@ const Dashboard = () => {
             <div className="flex justify-center py-12">
               <div className="w-8 h-8 border-t-2 border-b-2 border-blog-accent rounded-full animate-spin"></div>
             </div>
+          ) : isError ? (
+            <div className="text-center py-12">
+              <p className="font-serif text-gray-500 mb-4">
+                Error loading your articles. Please try again.
+              </p>
+            </div>
           ) : articles.length === 0 ? (
             <div className="text-center py-12">
               <p className="font-serif text-gray-500 mb-4">
@@ -93,7 +134,6 @@ const Dashboard = () => {
               </Button>
             </div>
           ) : (
-            // Table would display here if articles existed
             <Table>
               <TableHeader>
                 <TableRow>
@@ -105,12 +145,62 @@ const Dashboard = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {/* Articles would be displayed here - left empty as per requirement */}
+                {articles.map((article) => (
+                  <TableRow key={article.id}>
+                    <TableCell className="font-medium">{article.title}</TableCell>
+                    <TableCell>
+                      <span className={`px-2 py-1 text-xs rounded-full ${
+                        article.status === 'published' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                      }`}>
+                        {article.status === 'published' ? 'Published' : 'Draft'}
+                      </span>
+                    </TableCell>
+                    <TableCell>{article.category}</TableCell>
+                    <TableCell>{new Date(article.date).toLocaleDateString()}</TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-2">
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => handleEditArticle(article.id)}
+                        >
+                          <Edit size={16} />
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => handleDeleteClick(article.id)}
+                          className="text-red-600 hover:text-red-800 hover:bg-red-50"
+                        >
+                          <Trash2 size={16} />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           )}
         </div>
       </main>
+      
+      {/* Delete confirmation dialog */}
+      <AlertDialog open={deleteArticleId !== null} onOpenChange={() => setDeleteArticleId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the article.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
