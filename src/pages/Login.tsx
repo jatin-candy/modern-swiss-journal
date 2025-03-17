@@ -1,10 +1,11 @@
 
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { Eye, EyeOff } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -12,21 +13,25 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
+  const { login } = useAuth();
+  
+  // Get the redirect path from location state or default to dashboard
+  const from = location.state?.from || "/dashboard";
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Check credentials against hardcoded values
-    if (username === "jatindangi07" && password === "Footballer07@") {
-      // Set auth status in localStorage
-      localStorage.setItem("cms_authenticated", "true");
+    const isSuccess = login(username, password);
+    
+    if (isSuccess) {
       toast({
         title: "Login successful",
         description: "Welcome back, Jatin!",
         duration: 3000,
       });
-      // Redirect to dashboard
-      navigate("/dashboard");
+      // Redirect to the original intended destination or dashboard
+      navigate(from, { replace: true });
     } else {
       toast({
         title: "Login failed",
