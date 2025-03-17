@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
+import MainLayout from "./components/layout/MainLayout";
 import Index from "./pages/Index";
 import Article from "./pages/Article";
 import Login from "./pages/Login";
@@ -23,14 +24,16 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/article/:slug" element={<Article />} />
-            <Route path="/login" element={<Login />} />
+            <Route path="/" element={<MainLayout><Index /></MainLayout>} />
+            <Route path="/article/:slug" element={<MainLayout><Article /></MainLayout>} />
+            <Route path="/login" element={<MainLayout><Login /></MainLayout>} />
             <Route 
               path="/dashboard" 
               element={
                 <ProtectedRoute>
-                  <Dashboard />
+                  <MainLayout>
+                    <Dashboard />
+                  </MainLayout>
                 </ProtectedRoute>
               } 
             />
@@ -38,7 +41,9 @@ const App = () => (
               path="/editor/:id" 
               element={
                 <ProtectedRoute>
-                  <ArticleEditor />
+                  <MainLayout>
+                    <ArticleEditor />
+                  </MainLayout>
                 </ProtectedRoute>
               } 
             />
@@ -46,12 +51,15 @@ const App = () => (
               path="/editor/new" 
               element={
                 <ProtectedRoute>
-                  <ArticleEditor />
+                  <MainLayout>
+                    <ArticleEditor />
+                  </MainLayout>
                 </ProtectedRoute>
               } 
             />
+            <Route path="/section/:category" element={<MainLayout><Index /></MainLayout>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
+            <Route path="*" element={<MainLayout><NotFound /></MainLayout>} />
           </Routes>
         </AuthProvider>
       </BrowserRouter>

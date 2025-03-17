@@ -1,12 +1,17 @@
 
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Menu, Search, User, X } from 'lucide-react';
 
-const Navbar = () => {
+interface NavbarProps {
+  isAuthenticated: boolean;
+}
+
+const Navbar = ({ isAuthenticated }: NavbarProps) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const location = useLocation();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -20,6 +25,9 @@ const Navbar = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Navigation categories - used across the component
+  const categories = ['Politics', 'Business', 'Opinion', 'Technology', 'Science', 'Health', 'Arts'];
 
   return (
     <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
@@ -54,21 +62,41 @@ const Navbar = () => {
             >
               <Search className="h-6 w-6" />
             </button>
-            <button
+            <Link
+              to={isAuthenticated ? '/dashboard' : '/login'}
               className="p-2 hover:bg-gray-100 rounded-full transition-colors"
               aria-label="User account"
             >
               <User className="h-6 w-6" />
-            </button>
+            </Link>
           </div>
         </div>
         
         {/* Secondary Navigation */}
         <nav className="hidden md:flex justify-center mt-2 border-t border-b border-gray-200 py-2">
           <ul className="flex space-x-8">
-            {['World', 'U.S.', 'Politics', 'Business', 'Opinion', 'Technology', 'Science', 'Health', 'Arts'].map((item) => (
+            <li>
+              <Link to="/" className={`navigation-item font-sans text-sm font-medium ${location.pathname === '/' ? 'font-bold text-blog-accent' : ''}`}>
+                Home
+              </Link>
+            </li>
+            
+            {isAuthenticated && (
+              <li>
+                <Link to="/dashboard" className={`navigation-item font-sans text-sm font-medium ${location.pathname === '/dashboard' ? 'font-bold text-blog-accent' : ''}`}>
+                  Dashboard
+                </Link>
+              </li>
+            )}
+            
+            {categories.map((item) => (
               <li key={item}>
-                <Link to={`/section/${item.toLowerCase()}`} className="navigation-item font-sans text-sm font-medium">
+                <Link 
+                  to={`/section/${item.toLowerCase()}`} 
+                  className={`navigation-item font-sans text-sm font-medium ${
+                    location.pathname === `/section/${item.toLowerCase()}` ? 'font-bold text-blog-accent' : ''
+                  }`}
+                >
                   {item}
                 </Link>
               </li>
@@ -95,10 +123,32 @@ const Navbar = () => {
           
           <nav>
             <ul className="space-y-6">
-              {['Home', 'World', 'U.S.', 'Politics', 'Business', 'Opinion', 'Technology', 'Science', 'Health', 'Arts', 'Living', 'Sports', 'Books', 'Food', 'Travel', 'Magazine', 'For You'].map((item) => (
+              <li className="border-b border-gray-100 pb-3">
+                <Link
+                  to="/"
+                  className="font-serif text-xl font-medium hover:text-blog-link transition-colors no-underline"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  Home
+                </Link>
+              </li>
+              
+              {isAuthenticated && (
+                <li className="border-b border-gray-100 pb-3">
+                  <Link
+                    to="/dashboard"
+                    className="font-serif text-xl font-medium hover:text-blog-link transition-colors no-underline"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    Dashboard
+                  </Link>
+                </li>
+              )}
+              
+              {categories.concat(['Living', 'Sports', 'Books', 'Food', 'Travel', 'Magazine']).map((item) => (
                 <li key={item} className="border-b border-gray-100 pb-3">
                   <Link
-                    to={item === 'Home' ? '/' : `/section/${item.toLowerCase()}`}
+                    to={`/section/${item.toLowerCase()}`}
                     className="font-serif text-xl font-medium hover:text-blog-link transition-colors no-underline"
                     onClick={() => setMenuOpen(false)}
                   >
@@ -136,25 +186,6 @@ const Navbar = () => {
                 autoFocus
               />
               <Search className="absolute right-2 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-            </div>
-            
-            <div className="mt-8">
-              <h3 className="font-sans text-sm uppercase tracking-wider text-blog-muted mb-4">TRENDING SEARCHES</h3>
-              <ul className="space-y-4">
-                {['Climate Change', 'Artificial Intelligence', 'Global Economy', 'Health Care', 'Election'].map((item) => (
-                  <li key={item}>
-                    <button 
-                      className="text-blog-link hover:underline font-serif text-lg"
-                      onClick={() => {
-                        setSearchOpen(false);
-                        // Handle search here
-                      }}
-                    >
-                      {item}
-                    </button>
-                  </li>
-                ))}
-              </ul>
             </div>
           </div>
         </div>

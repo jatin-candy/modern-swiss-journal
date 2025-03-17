@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
-import { PlusCircle, Edit, Eye, Trash2, LogOut } from "lucide-react";
+import { PlusCircle, LogOut } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -14,28 +14,8 @@ import {
 } from "@/components/ui/table";
 import { useToast } from "@/components/ui/use-toast";
 
-// Mock article data for now - will be replaced with actual data store
-const initialArticles = [
-  {
-    id: 1,
-    title: "The Renaissance of Swiss Design in Digital Interfaces",
-    status: "published",
-    date: "2023-10-15",
-    category: "Design",
-    slug: "renaissance-swiss-design",
-  },
-  {
-    id: 2,
-    title: "The Mathematics of Perfect Typography",
-    status: "draft",
-    date: "2023-10-12",
-    category: "Typography",
-    slug: "mathematics-perfect-typography",
-  },
-];
-
 const Dashboard = () => {
-  const [articles, setArticles] = useState(initialArticles);
+  const [articles, setArticles] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { logout } = useAuth();
   const navigate = useNavigate();
@@ -45,6 +25,8 @@ const Dashboard = () => {
     // Simulate loading articles from storage
     const timer = setTimeout(() => {
       // In a real implementation, we'd fetch articles from localStorage or an API
+      // For now, initialize with an empty array instead of mock data
+      setArticles([]);
       setIsLoading(false);
     }, 500);
     
@@ -56,25 +38,6 @@ const Dashboard = () => {
     navigate("/editor/new");
   };
 
-  const handleEditArticle = (id: number) => {
-    // Navigate to article editor with article ID
-    navigate(`/editor/${id}`);
-  };
-
-  const handleViewArticle = (slug: string) => {
-    // Open the article in a new tab
-    window.open(`/article/${slug}`, "_blank");
-  };
-
-  const handleDeleteArticle = (id: number) => {
-    // Mock deletion - in real app would delete from storage
-    setArticles(articles.filter(article => article.id !== id));
-    toast({
-      title: "Article deleted",
-      description: "The article has been removed.",
-    });
-  };
-
   const handleLogout = () => {
     logout();
     toast({
@@ -84,11 +47,11 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-blog-background">
+    <div className="min-h-screen bg-blog-background pt-0">
       {/* Dashboard Header */}
       <header className="border-b border-gray-200 bg-white">
         <div className="grid-container flex items-center justify-between py-4">
-          <h1 className="font-serif font-bold text-2xl">Jatin's Journal Dashboard</h1>
+          <h1 className="font-serif font-bold text-2xl">Your Dashboard</h1>
           <div className="flex items-center gap-4">
             <Button 
               variant="outline" 
@@ -130,6 +93,7 @@ const Dashboard = () => {
               </Button>
             </div>
           ) : (
+            // Table would display here if articles existed
             <Table>
               <TableHeader>
                 <TableRow>
@@ -141,55 +105,7 @@ const Dashboard = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {articles.map((article) => (
-                  <TableRow key={article.id}>
-                    <TableCell className="font-medium">{article.title}</TableCell>
-                    <TableCell>
-                      <span 
-                        className={`inline-block px-2 py-1 text-xs font-medium rounded-full ${
-                          article.status === "published" 
-                            ? "bg-green-100 text-green-800" 
-                            : "bg-amber-100 text-amber-800"
-                        }`}
-                      >
-                        {article.status}
-                      </span>
-                    </TableCell>
-                    <TableCell>{article.category}</TableCell>
-                    <TableCell>{new Date(article.date).toLocaleDateString()}</TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        {article.status === "published" && (
-                          <Button
-                            variant="ghost" 
-                            size="icon"
-                            onClick={() => handleViewArticle(article.slug)}
-                            title="View"
-                          >
-                            <Eye size={16} />
-                          </Button>
-                        )}
-                        <Button
-                          variant="ghost" 
-                          size="icon"
-                          onClick={() => handleEditArticle(article.id)}
-                          title="Edit"
-                        >
-                          <Edit size={16} />
-                        </Button>
-                        <Button
-                          variant="ghost" 
-                          size="icon"
-                          onClick={() => handleDeleteArticle(article.id)}
-                          title="Delete"
-                          className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                        >
-                          <Trash2 size={16} />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {/* Articles would be displayed here - left empty as per requirement */}
               </TableBody>
             </Table>
           )}
