@@ -1,12 +1,13 @@
 
 import { createClient } from "@supabase/supabase-js";
+import { supabase as supabaseClient } from "@/integrations/supabase/client";
 
 // These environment variables should be set in your Vercel project settings
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "";
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || "";
 
-// Create a single supabase client for the entire app
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Use the supabase client from the integrations folder
+export const supabase = supabaseClient;
 
 // Types for our database tables
 export interface Article {
