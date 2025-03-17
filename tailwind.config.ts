@@ -22,6 +22,8 @@ export default {
 			fontFamily: {
 				serif: ['Georgia', 'Cambria', 'Times New Roman', 'Times', 'serif'],
 				sans: ['Helvetica', 'Arial', 'sans-serif'],
+				broadway: ['Broadway', 'Impact', 'sans-serif'],
+				playfair: ['Playfair Display', 'Georgia', 'serif']
 			},
 			colors: {
 				border: 'hsl(var(--border))',

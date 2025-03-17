@@ -49,7 +49,7 @@ const Navbar = ({ isAuthenticated }: NavbarProps) => {
           {/* Center section with logo */}
           <div className="w-1/3 flex justify-center">
             <Link to="/" className="no-underline">
-              <h1 className="text-2xl font-serif font-bold tracking-tight">THE JOURNAL</h1>
+              <h1 className="text-2xl font-broadway tracking-tight">THE THOUGHT</h1>
             </Link>
           </div>
           
@@ -111,7 +111,7 @@ const Navbar = ({ isAuthenticated }: NavbarProps) => {
       }`}>
         <div className="h-full overflow-auto p-6">
           <div className="flex justify-between items-center mb-8">
-            <h2 className="text-xl font-serif font-bold">Sections</h2>
+            <h2 className="text-xl font-broadway font-bold">Sections</h2>
             <button
               onClick={() => setMenuOpen(false)}
               className="p-2 hover:bg-gray-100 rounded-full transition-colors"
@@ -126,7 +126,7 @@ const Navbar = ({ isAuthenticated }: NavbarProps) => {
               <li className="border-b border-gray-100 pb-3">
                 <Link
                   to="/"
-                  className="font-serif text-xl font-medium hover:text-blog-link transition-colors no-underline"
+                  className="font-playfair text-xl font-medium hover:text-blog-link transition-colors no-underline"
                   onClick={() => setMenuOpen(false)}
                 >
                   Home
@@ -137,7 +137,7 @@ const Navbar = ({ isAuthenticated }: NavbarProps) => {
                 <li className="border-b border-gray-100 pb-3">
                   <Link
                     to="/dashboard"
-                    className="font-serif text-xl font-medium hover:text-blog-link transition-colors no-underline"
+                    className="font-playfair text-xl font-medium hover:text-blog-link transition-colors no-underline"
                     onClick={() => setMenuOpen(false)}
                   >
                     Dashboard
@@ -149,7 +149,7 @@ const Navbar = ({ isAuthenticated }: NavbarProps) => {
                 <li key={item} className="border-b border-gray-100 pb-3">
                   <Link
                     to={`/section/${item.toLowerCase()}`}
-                    className="font-serif text-xl font-medium hover:text-blog-link transition-colors no-underline"
+                    className="font-playfair text-xl font-medium hover:text-blog-link transition-colors no-underline"
                     onClick={() => setMenuOpen(false)}
                   >
                     {item}
@@ -167,7 +167,7 @@ const Navbar = ({ isAuthenticated }: NavbarProps) => {
       }`}>
         <div className="h-full p-6">
           <div className="flex justify-between items-center mb-8">
-            <h2 className="text-xl font-serif font-bold">Search</h2>
+            <h2 className="text-xl font-playfair font-bold">Search</h2>
             <button
               onClick={() => setSearchOpen(false)}
               className="p-2 hover:bg-gray-100 rounded-full transition-colors"
@@ -182,7 +182,7 @@ const Navbar = ({ isAuthenticated }: NavbarProps) => {
               <input
                 type="text"
                 placeholder="Search articles..."
-                className="w-full border-b-2 border-gray-200 focus:border-blog-link py-3 px-2 text-xl outline-none font-serif"
+                className="w-full border-b-2 border-gray-200 focus:border-blog-link py-3 px-2 text-xl outline-none font-playfair"
                 autoFocus
               />
               <Search className="absolute right-2 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
