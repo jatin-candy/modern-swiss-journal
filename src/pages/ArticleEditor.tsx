@@ -1,10 +1,9 @@
-
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label"; 
+import { Label } from "@/components/ui/label";
 import {
   Form,
   FormField,
@@ -21,16 +20,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { useToast } from "@/components/ui/use-toast";
-import { ArrowLeft, Save, Eye, Upload, Bold, Italic, Underline, List, ListOrdered, Quote, Link, Image, FileText, Type, ChevronDown } from "lucide-react";
+import { ArrowLeft, Save, Eye, Upload } from "lucide-react";
+import { QuillEditor } from "@/components/ui/QuillEditor";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -129,68 +121,7 @@ const ArticleEditor = () => {
     }
   }, [isNewArticle, id, form]);
   
-  // Text formatting helpers
-  const insertFormat = (format: string) => {
-    const contentField = form.getValues("content");
-    const textArea = document.getElementById("content") as HTMLTextAreaElement;
-    
-    if (!textArea) return;
-    
-    const start = textArea.selectionStart;
-    const end = textArea.selectionEnd;
-    const selectedText = contentField.substring(start, end);
-    let formattedText = "";
-    
-    switch(format) {
-      case "bold":
-        formattedText = `**${selectedText}**`;
-        break;
-      case "italic":
-        formattedText = `*${selectedText}*`;
-        break;
-      case "underline":
-        formattedText = `__${selectedText}__`;
-        break;
-      case "h1":
-        formattedText = `\n# ${selectedText}\n`;
-        break;
-      case "h2":
-        formattedText = `\n## ${selectedText}\n`;
-        break;
-      case "h3":
-        formattedText = `\n### ${selectedText}\n`;
-        break;
-      case "ul":
-        formattedText = `\n- ${selectedText}\n`;
-        break;
-      case "ol":
-        formattedText = `\n1. ${selectedText}\n`;
-        break;
-      case "quote":
-        formattedText = `\n> ${selectedText}\n`;
-        break;
-      case "link":
-        formattedText = `[${selectedText}](url)`;
-        break;
-      case "image":
-        formattedText = `![${selectedText || "Image description"}](image-url)`;
-        break;
-      default:
-        formattedText = selectedText;
-    }
-    
-    const newContent = contentField.substring(0, start) + formattedText + contentField.substring(end);
-    form.setValue("content", newContent);
-    
-    // Reset focus and selection
-    setTimeout(() => {
-      textArea.focus();
-      textArea.setSelectionRange(
-        start + formattedText.length,
-        start + formattedText.length
-      );
-    }, 0);
-  };
+  // Text formatting is handled by Quill editor
   
   const handleSaveDraft = () => {
     const articleData = form.getValues();
@@ -216,31 +147,7 @@ const ArticleEditor = () => {
     setPreviewMode(!previewMode);
   };
 
-  // Format text for preview display
-  const formatContentForPreview = (content: string) => {
-    if (!content) return "";
-    
-    // Basic markdown-like formatting
-    let formatted = content
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Bold
-      .replace(/\*(.*?)\*/g, '<em>$1</em>') // Italic
-      .replace(/__(.*?)__/g, '<u>$1</u>') // Underline
-      .replace(/# (.*?)\n/g, '<h1>$1</h1>\n') // H1
-      .replace(/## (.*?)\n/g, '<h2>$1</h2>\n') // H2
-      .replace(/### (.*?)\n/g, '<h3>$1</h3>\n') // H3
-      .replace(/> (.*?)\n/g, '<blockquote>$1</blockquote>\n') // Blockquote
-      .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank">$1</a>') // Links
-      .replace(/!\[(.*?)\]\((.*?)\)/g, '<img src="$2" alt="$1" />') // Images
-      .replace(/- (.*?)\n/g, '<li>$1</li>\n') // List items
-      .replace(/(\d+)\. (.*?)\n/g, '<li>$2</li>\n'); // Ordered list items
-    
-    // Convert new lines to paragraphs
-    formatted = formatted.split('\n\n')
-      .map(para => para ? `<p>${para}</p>` : '')
-      .join('');
-    
-    return formatted;
-  };
+  // Text formatting is now handled by Quill
   
   return (
     <div className="min-h-screen bg-blog-background">
@@ -327,10 +234,10 @@ const ArticleEditor = () => {
               {/* Article content */}
               <div className="prose prose-lg max-w-none font-serif">
                 <div 
-                  dangerouslySetInnerHTML={{ 
-                    __html: formatContentForPreview(form.getValues("content")) 
-                  }} 
-                  className="first-letter:text-5xl first-letter:font-bold first-letter:float-left first-letter:mr-2"
+                  dangerouslySetInnerHTML={{
+                    __html: form.getValues("content")
+                  }}
+                  className="ql-editor first-letter:text-5xl first-letter:font-bold first-letter:float-left first-letter:mr-2"
                 />
                 
                 {form.getValues("pullQuote") && (
@@ -371,123 +278,6 @@ const ArticleEditor = () => {
                 <form onSubmit={form.handleSubmit(handlePublish)} className="space-y-6">
                   {activeSection === "content" && (
                     <div className="space-y-6">
-                      {/* Rich Text Editor Toolbar */}
-                      <div className="bg-gray-50 p-2 rounded-md border border-gray-200 flex flex-wrap gap-1">
-                        <Button 
-                          type="button" 
-                          variant="ghost" 
-                          size="sm" 
-                          onClick={() => insertFormat("bold")}
-                        >
-                          <Bold size={16} />
-                        </Button>
-                        <Button 
-                          type="button" 
-                          variant="ghost" 
-                          size="sm"
-                          onClick={() => insertFormat("italic")}
-                        >
-                          <Italic size={16} />
-                        </Button>
-                        <Button 
-                          type="button" 
-                          variant="ghost" 
-                          size="sm"
-                          onClick={() => insertFormat("underline")}
-                        >
-                          <Underline size={16} />
-                        </Button>
-                        
-                        <div className="h-6 w-px bg-gray-300 mx-1"></div>
-                        
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm" className="flex items-center gap-1">
-                              <Type size={16} />
-                              <span className="text-xs">Headings</span>
-                              <ChevronDown size={12} />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent>
-                            <DropdownMenuItem onClick={() => insertFormat("h1")}>
-                              <span className="text-xl font-bold">Heading 1</span>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => insertFormat("h2")}>
-                              <span className="text-lg font-bold">Heading 2</span>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => insertFormat("h3")}>
-                              <span className="text-md font-bold">Heading 3</span>
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                        
-                        <Button 
-                          type="button" 
-                          variant="ghost" 
-                          size="sm"
-                          onClick={() => insertFormat("ul")}
-                        >
-                          <List size={16} />
-                        </Button>
-                        <Button 
-                          type="button" 
-                          variant="ghost" 
-                          size="sm"
-                          onClick={() => insertFormat("ol")}
-                        >
-                          <ListOrdered size={16} />
-                        </Button>
-                        <Button 
-                          type="button" 
-                          variant="ghost" 
-                          size="sm"
-                          onClick={() => insertFormat("quote")}
-                        >
-                          <Quote size={16} />
-                        </Button>
-                        
-                        <div className="h-6 w-px bg-gray-300 mx-1"></div>
-                        
-                        <Button 
-                          type="button" 
-                          variant="ghost" 
-                          size="sm"
-                          onClick={() => insertFormat("link")}
-                        >
-                          <Link size={16} />
-                        </Button>
-                        <Button 
-                          type="button" 
-                          variant="ghost" 
-                          size="sm"
-                          onClick={() => insertFormat("image")}
-                        >
-                          <Image size={16} />
-                        </Button>
-                        <Button 
-                          type="button" 
-                          variant="ghost" 
-                          size="sm"
-                          onClick={() => {
-                            // Open file upload dialog
-                            const input = document.createElement('input');
-                            input.type = 'file';
-                            input.accept = 'image/*';
-                            input.onchange = (e) => {
-                              // In a real app, upload the file to a server
-                              // and get URL, then insert it
-                              toast({
-                                title: "File upload",
-                                description: "File upload would be processed here in a real implementation.",
-                              });
-                            };
-                            input.click();
-                          }}
-                        >
-                          <FileText size={16} />
-                        </Button>
-                      </div>
-                      
                       {/* Main Content */}
                       <FormField
                         control={form.control}
@@ -496,16 +286,15 @@ const ArticleEditor = () => {
                           <FormItem>
                             <FormLabel>Content</FormLabel>
                             <FormControl>
-                              <Textarea 
-                                id="content"
-                                placeholder="Write your article content here..." 
-                                className="font-serif text-base min-h-[400px] p-4 leading-relaxed"
-                                fullHeight
-                                {...field}
-                              />
+                              <div className="min-h-[400px] border rounded-md">
+                                <QuillEditor
+                                  value={field.value}
+                                  onChange={field.onChange}
+                                />
+                              </div>
                             </FormControl>
                             <FormDescription>
-                              The first letter will be automatically styled as a drop cap in the published article.
+                              Use the toolbar above for formatting. The first letter will be automatically styled as a drop cap in the published article.
                             </FormDescription>
                             <FormMessage />
                           </FormItem>
