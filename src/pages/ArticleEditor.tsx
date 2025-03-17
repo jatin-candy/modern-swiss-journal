@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { useCreateArticle, useUpdateArticle, useGetArticleBySlug } from "@/hooks/useArticles";
+import type { Article } from "@/lib/supabase";
 import {
   Form,
   FormField,
@@ -123,24 +125,119 @@ const ArticleEditor = () => {
   
   // Text formatting is handled by Quill editor
   
-  const handleSaveDraft = () => {
-    const articleData = form.getValues();
-    // In a real implementation, save to localStorage or API
-    console.log("Saving draft:", articleData);
-    toast({
-      title: "Draft saved",
-      description: "Your article has been saved as a draft.",
-    });
+  // Get mutation hooks
+  const { mutateAsync: createArticle } = useCreateArticle();
+  const { mutateAsync: updateArticle } = useUpdateArticle();
+  const { data: existingArticle } = useGetArticleBySlug(id || '');
+
+  useEffect(() => {
+    // If editing existing article and we have data, load it
+    if (!isNewArticle && existingArticle) {
+      form.reset({
+        title: existingArticle.title,
+        subtitle: existingArticle.subtitle || "",
+        content: existingArticle.content,
+        pullQuote: existingArticle.pullQuote || "",
+        author: existingArticle.author,
+        date: existingArticle.date || new Date().toISOString().split("T")[0],
+        category: existingArticle.category,
+        featuredImage: existingArticle.featuredImage || "",
+        imageCaption: existingArticle.imageCaption || "",
+        tags: existingArticle.tags || "",
+        seoDescription: existingArticle.seoDescription || "",
+      });
+    }
+  }, [isNewArticle, existingArticle, form]);
+
+  // Helper function to create URL-friendly slugs
+  const createSlug = (text: string): string => {
+    return text
+      .toLowerCase()
+      .replace(/\s+/g, '-')
+      .replace(/[^\w-]+/g, '')
+      .replace(/--+/g, '-')
+      .replace(/^-+/, '')
+      .replace(/-+$/, '');
+  };
+
+  const handleSaveDraft = async () => {
+    try {
+      const formData = form.getValues();
+      const article = {
+        title: formData.title,
+        content: formData.content,
+        author: formData.author,
+        category: formData.category,
+        status: "draft" as const,
+        slug: createSlug(formData.title),
+        // Optional fields
+        subtitle: formData.subtitle || null,
+        pullQuote: formData.pullQuote || null,
+        date: formData.date || null,
+        featuredImage: formData.featuredImage || null,
+        imageCaption: formData.imageCaption || null,
+        tags: formData.tags || null,
+        seoDescription: formData.seoDescription || null,
+      };
+
+      if (isNewArticle) {
+        await createArticle(article);
+      } else {
+        await updateArticle({ ...article, id: existingArticle?.id || 0 });
+      }
+
+      toast({
+        title: "Draft saved",
+        description: "Your article has been saved as a draft.",
+      });
+    } catch (error) {
+      console.error('Error saving draft:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save draft. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
   
-  const handlePublish = (data: ArticleFormValues) => {
-    // In a real implementation, publish to API
-    console.log("Publishing article:", data);
-    toast({
-      title: "Article published",
-      description: "Your article has been published successfully.",
-    });
-    navigate("/dashboard");
+  const handlePublish = async (formData: ArticleFormValues) => {
+    try {
+      const article = {
+        title: formData.title,
+        content: formData.content,
+        author: formData.author,
+        category: formData.category,
+        status: "published" as const,
+        slug: createSlug(formData.title),
+        // Optional fields
+        subtitle: formData.subtitle || null,
+        pullQuote: formData.pullQuote || null,
+        date: formData.date || null,
+        featuredImage: formData.featuredImage || null,
+        imageCaption: formData.imageCaption || null,
+        tags: formData.tags || null,
+        seoDescription: formData.seoDescription || null,
+      };
+
+      if (isNewArticle) {
+        await createArticle(article);
+      } else {
+        await updateArticle({ ...article, id: existingArticle?.id || 0 });
+      }
+
+      toast({
+        title: "Article published",
+        description: "Your article has been published successfully.",
+      });
+      navigate("/dashboard");
+    } catch (error) {
+      console.error('Error publishing:', error);
+      toast({
+        title: "Error",
+        description: "Failed to publish article. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
   
   const togglePreviewMode = () => {
