@@ -12,19 +12,19 @@ export const supabase = supabaseClient;
 // Types for our database tables
 export interface Article {
   id: number;
-  created_at: string;
+  created_at: string | null;
   title: string;
-  subtitle?: string;
+  subtitle?: string | null;
   content: string;
-  pullQuote?: string;
+  pullQuote?: string | null;
   author: string;
-  date: string;
+  date: string | null;
   category: string;
-  featuredImage?: string;
-  imageCaption?: string;
-  tags?: string;
-  status: 'draft' | 'published';
-  seoDescription?: string;
+  featuredImage?: string | null;
+  imageCaption?: string | null;
+  tags?: string | null;
+  status: string;  // Changed from '"draft" | "published"' to string to match DB
+  seoDescription?: string | null;
   slug: string;
 }
 

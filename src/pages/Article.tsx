@@ -4,6 +4,7 @@ import { useParams, Link } from 'react-router-dom';
 import ArticleCard from '../components/ui/ArticleCard';
 import { Share2, Bookmark, Facebook, Twitter, Linkedin, MessageCircle } from 'lucide-react';
 import { useGetArticleBySlug } from '../hooks/useArticles';
+import { supabase } from '../lib/supabase';
 
 const Article = () => {
   const { slug } = useParams();
