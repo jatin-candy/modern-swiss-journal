@@ -1,10 +1,7 @@
-
-import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import ArticleCard from '../components/ui/ArticleCard';
-import { Share2, Bookmark, Facebook, Twitter, Linkedin, MessageCircle } from 'lucide-react';
-import { useGetArticleBySlug } from '../hooks/useArticles';
-import { supabase } from '../lib/supabase';
+import { useEffect } from "react";
+import { useParams } from "react-router-dom";
+import { useGetArticleBySlug } from "@/hooks/useArticles";
+import { supabase } from "@/lib/supabase";
 
 const Article = () => {
   const { slug } = useParams();
@@ -27,11 +24,8 @@ const Article = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
   
-  // Fetch related articles once we have the article data
   useEffect(() => {
     if (article) {
-      // In a real implementation, fetch related articles based on category or tags
-      // For now, we'll just simulate this
       async function fetchRelated() {
         const { data } = await supabase
           .from("articles")
@@ -74,7 +68,6 @@ const Article = () => {
     );
   }
 
-  // Split content into paragraphs for rendering
   const contentParagraphs = article.content.split("\n\n").filter(Boolean);
 
   return (
@@ -117,7 +110,6 @@ const Article = () => {
           </div>
         </header>
         
-        {/* Hero image */}
         {article.featuredImage && (
           <figure className="mb-12">
             <div className="aspect-w-16 aspect-h-9 overflow-hidden">
@@ -135,7 +127,6 @@ const Article = () => {
           </figure>
         )}
         
-        {/* Article content */}
         <div className="grid-article mb-16">
           <aside className="hidden lg:block">
             {/* Left sidebar - empty or could have additional content */}
@@ -144,14 +135,12 @@ const Article = () => {
           <div className="article-content">
             {contentParagraphs.map((paragraph, index) => {
               if (index === 0) {
-                // First paragraph with drop cap
                 return (
                   <p key={index} className="first-letter mb-6">
                     {paragraph}
                   </p>
                 );
               } else if (index === 3 && article.pullQuote) {
-                // Add pull quote after the third paragraph
                 return (
                   <div key={index}>
                     <p className="mb-6">{paragraph}</p>
@@ -161,7 +150,6 @@ const Article = () => {
                   </div>
                 );
               } else {
-                // Regular paragraphs
                 return (
                   <p key={index} className="mb-6">
                     {paragraph}
@@ -197,7 +185,6 @@ const Article = () => {
           </div>
           
           <aside className="hidden lg:block relative">
-            {/* Floating share buttons */}
             <div className={`sticky top-32 transition-opacity duration-300 ${
               isShareVisible ? 'opacity-100' : 'opacity-0'
             }`}>
@@ -225,7 +212,6 @@ const Article = () => {
           </aside>
         </div>
         
-        {/* Related articles section */}
         {relatedArticles.length > 0 && (
           <section className="mb-16">
             <div className="max-w-4xl mx-auto">

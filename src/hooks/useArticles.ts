@@ -37,7 +37,12 @@ export function useGetArticles(category?: string) {
       
       const { data, error } = await query;
       
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching articles:", error);
+        throw error;
+      }
+      
+      console.log("Fetched published articles:", data);
       return data ? data.map(mapDbResponseToArticle) : [];
     },
   });
@@ -53,7 +58,12 @@ export function useGetArticleBySlug(slug: string) {
         .eq("slug", slug)
         .single();
       
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching article by slug:", error);
+        throw error;
+      }
+      
+      console.log("Fetched article by slug:", data);
       return data ? mapDbResponseToArticle(data) : null;
     },
     enabled: !!slug,
@@ -69,7 +79,12 @@ export function useGetUserArticles() {
         .select("*")
         .order("created_at", { ascending: false });
       
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching user articles:", error);
+        throw error;
+      }
+      
+      console.log("Fetched user articles:", data);
       return data ? data.map(mapDbResponseToArticle) : [];
     },
   });
@@ -99,13 +114,20 @@ export function useCreateArticle() {
         slug
       };
       
+      console.log("Creating article with data:", dbArticle);
+      
       const { data, error } = await supabase
         .from("articles")
         .insert([dbArticle])
         .select()
         .single();
       
-      if (error) throw error;
+      if (error) {
+        console.error("Error creating article:", error);
+        throw error;
+      }
+      
+      console.log("Created article:", data);
       return mapDbResponseToArticle(data);
     },
     onSuccess: () => {
@@ -142,6 +164,8 @@ export function useUpdateArticle() {
       if (article.seoDescription !== undefined) dbArticle.seodescription = article.seoDescription;
       if (slug) dbArticle.slug = slug;
       
+      console.log("Updating article with ID:", article.id, "and data:", dbArticle);
+      
       const { data, error } = await supabase
         .from("articles")
         .update(dbArticle)
@@ -149,7 +173,12 @@ export function useUpdateArticle() {
         .select()
         .single();
       
-      if (error) throw error;
+      if (error) {
+        console.error("Error updating article:", error);
+        throw error;
+      }
+      
+      console.log("Updated article:", data);
       return mapDbResponseToArticle(data);
     },
     onSuccess: (data) => {
