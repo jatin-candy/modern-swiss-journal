@@ -56,7 +56,7 @@ export function useGetArticleBySlug(slug: string) {
         .from("articles")
         .select("*")
         .eq("slug", slug)
-        .single();
+        .maybeSingle();
       
       if (error) {
         console.error("Error fetching article by slug:", error);
@@ -120,7 +120,7 @@ export function useCreateArticle() {
         .from("articles")
         .insert([dbArticle])
         .select()
-        .single();
+        .maybeSingle();
       
       if (error) {
         console.error("Error creating article:", error);
@@ -175,7 +175,7 @@ export function useUpdateArticle() {
           .from("articles")
           .insert([dbArticle])
           .select()
-          .single();
+          .maybeSingle();
         
         if (error) {
           console.error("Error creating article:", error);
@@ -193,7 +193,7 @@ export function useUpdateArticle() {
           .update(dbArticle)
           .eq("id", article.id)
           .select()
-          .single();
+          .maybeSingle();
         
         if (error) {
           console.error("Error updating article:", error);
