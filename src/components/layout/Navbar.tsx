@@ -81,7 +81,8 @@ const Navbar = ({
       <div className={`fixed inset-0 bg-white z-50 transform transition-transform duration-300 ${menuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="h-full overflow-auto p-6">
           <div className="flex justify-between items-center mb-8">
-            <h2 className="text-xl font-broadway font-bold">Sections</h2>
+            <h2 className="text-xl font-broadway font-bold">
+          </h2>
             <button onClick={() => setMenuOpen(false)} className="p-2 hover:bg-gray-100 rounded-full transition-colors" aria-label="Close menu">
               <X className="h-6 w-6" />
             </button>
@@ -101,11 +102,7 @@ const Navbar = ({
                   </Link>
                 </li>}
               
-              {categories.concat(['Living', 'Sports', 'Books', 'Food', 'Travel', 'Magazine']).map(item => <li key={item} className="border-b border-gray-100 pb-3">
-                  <Link to={`/section/${item.toLowerCase()}`} className="font-playfair text-xl font-medium hover:text-blog-link transition-colors no-underline" onClick={() => setMenuOpen(false)}>
-                    {item}
-                  </Link>
-                </li>)}
+              {categories.concat(['Living', 'Sports', 'Books', 'Food', 'Travel', 'Magazine']).map(item => {})}
             </ul>
           </nav>
         </div>
