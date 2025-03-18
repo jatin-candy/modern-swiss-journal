@@ -141,7 +141,10 @@ export function useUpdateArticle() {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async (article: Partial<Article> & { id: number }): Promise<Article> => {
+    mutationFn: async (article: Partial<Article> & { id?: number }): Promise<Article> => {
+      // Check if this is a new article (id === undefined or id === 0)
+      const isNewArticle = !article.id || article.id === 0;
+      
       // If title is updated, update slug too
       let slug = article.slug;
       if (article.title) {
@@ -164,22 +167,42 @@ export function useUpdateArticle() {
       if (article.seoDescription !== undefined) dbArticle.seodescription = article.seoDescription;
       if (slug) dbArticle.slug = slug;
       
-      console.log("Updating article with ID:", article.id, "and data:", dbArticle);
-      
-      const { data, error } = await supabase
-        .from("articles")
-        .update(dbArticle)
-        .eq("id", article.id)
-        .select()
-        .single();
-      
-      if (error) {
-        console.error("Error updating article:", error);
-        throw error;
+      // For new articles, use insert instead of update
+      if (isNewArticle) {
+        console.log("Creating new article with data:", dbArticle);
+        
+        const { data, error } = await supabase
+          .from("articles")
+          .insert([dbArticle])
+          .select()
+          .single();
+        
+        if (error) {
+          console.error("Error creating article:", error);
+          throw error;
+        }
+        
+        console.log("Created article:", data);
+        return mapDbResponseToArticle(data);
+      } else {
+        // For existing articles, use update
+        console.log("Updating article with ID:", article.id, "and data:", dbArticle);
+        
+        const { data, error } = await supabase
+          .from("articles")
+          .update(dbArticle)
+          .eq("id", article.id)
+          .select()
+          .single();
+        
+        if (error) {
+          console.error("Error updating article:", error);
+          throw error;
+        }
+        
+        console.log("Updated article:", data);
+        return mapDbResponseToArticle(data);
       }
-      
-      console.log("Updated article:", data);
-      return mapDbResponseToArticle(data);
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["articles"] });
