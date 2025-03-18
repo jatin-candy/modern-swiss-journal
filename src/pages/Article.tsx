@@ -1,7 +1,9 @@
-import { useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useParams, Link } from "react-router-dom";
 import { useGetArticleBySlug } from "@/hooks/useArticles";
 import { supabase } from "@/lib/supabase";
+import { Share2, Bookmark, Facebook, Twitter, Linkedin, MessageCircle } from "lucide-react";
+import ArticleCard from "@/components/ui/ArticleCard";
 
 const Article = () => {
   const { slug } = useParams();
