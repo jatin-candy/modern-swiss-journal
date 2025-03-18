@@ -1,9 +1,12 @@
+
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, Search, User, X } from 'lucide-react';
+
 interface NavbarProps {
   isAuthenticated: boolean;
 }
+
 const Navbar = ({
   isAuthenticated
 }: NavbarProps) => {
@@ -11,6 +14,7 @@ const Navbar = ({
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const location = useLocation();
+
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 20) {
@@ -19,13 +23,16 @@ const Navbar = ({
         setIsScrolled(false);
       }
     };
+
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   // Navigation categories - used across the component
   const categories = ['Politics', 'Business', 'Opinion', 'Technology', 'Science', 'Health', 'Arts'];
-  return <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-white shadow-md py-2' : 'bg-white py-4'}`}>
+
+  return (
+    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-white shadow-md py-2' : 'bg-white py-4'}`}>
       <div className="max-w-screen-2xl mx-auto px-4">
         <div className="flex justify-between items-center">
           {/* Left section with hamburger menu */}
@@ -81,8 +88,7 @@ const Navbar = ({
       <div className={`fixed inset-0 bg-white z-50 transform transition-transform duration-300 ${menuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="h-full overflow-auto p-6">
           <div className="flex justify-between items-center mb-8">
-            <h2 className="text-xl font-broadway font-bold">
-          </h2>
+            <h2 className="text-xl font-broadway font-bold">Sections</h2>
             <button onClick={() => setMenuOpen(false)} className="p-2 hover:bg-gray-100 rounded-full transition-colors" aria-label="Close menu">
               <X className="h-6 w-6" />
             </button>
@@ -102,7 +108,13 @@ const Navbar = ({
                   </Link>
                 </li>}
               
-              {categories.concat(['Living', 'Sports', 'Books', 'Food', 'Travel', 'Magazine']).map(item => {})}
+              {categories.concat(['Living', 'Sports', 'Books', 'Food', 'Travel', 'Magazine']).map(item => (
+                <li key={item} className="border-b border-gray-100 pb-3">
+                  <Link to={`/section/${item.toLowerCase()}`} className="font-playfair text-xl font-medium hover:text-blog-link transition-colors no-underline" onClick={() => setMenuOpen(false)}>
+                    {item}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </nav>
         </div>
@@ -126,6 +138,8 @@ const Navbar = ({
           </div>
         </div>
       </div>
-    </header>;
+    </header>
+  );
 };
+
 export default Navbar;
