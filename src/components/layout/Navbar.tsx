@@ -108,7 +108,7 @@ const Navbar = ({
                   </Link>
                 </li>}
               
-              {categories.concat(['Living', 'Sports', 'Books', 'Food', 'Travel', 'Magazine']).map(item => (
+              {categories.map(item => (
                 <li key={item} className="border-b border-gray-100 pb-3">
                   <Link to={`/section/${item.toLowerCase()}`} className="font-playfair text-xl font-medium hover:text-blog-link transition-colors no-underline" onClick={() => setMenuOpen(false)}>
                     {item}
